@@ -1,0 +1,71 @@
+version: "3.8"
+
+services:
+  web_php:
+    container_name: test_web
+    build:
+      context: .
+      dockerfile: docker/php/Dockerfile
+    env_file:
+      - .env
+    environment:
+      - TZ=Europe/Moscow
+      - DB_MYSQL_HOST=db_mysql
+      - DB_MYSQL_NAME=test_api
+      - DB_MYSQL_USER=test_api
+      - PHP_USER_ID=33
+    volumes:
+      - .:/home/www
+    depends_on:
+      db_mysql:
+        condition: service_healthy
+    links:
+      - db_mysql
+
+  web_nginx:
+    container_name: test_api_nginx
+    build:
+      context: .
+      dockerfile: docker/nginx/Dockerfile
+      args:
+        - ENV_FILE=.env
+    ports:
+      - "80:80"
+      - "8880:8880"
+      - "8881:8881"
+    environment:
+      - TZ=Europe/Moscow
+    volumes:
+      - .:/home/www
+    depends_on:
+      - "web_php"
+
+  db_mysql:
+    container_name: test_api_mysql
+    restart: unless-stopped
+    image: mysql:latest
+    tty: true
+    healthcheck:
+      test: ["CMD", "mysqladmin" ,"ping", "-h", "localhost"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+    cap_add:
+      - SYS_NICE  # CAP_SYS_NICE
+    ports:
+      - "3306:3306"
+    environment:
+      - MYSQL_DATABASE=test_api
+      - MYSQL_USER=test_api
+      - MYSQL_PASSWORD=${DB_MYSQL_PASSWORD}
+      - MYSQL_ROOT_PASSWORD=${DB_MYSQL_PASSWORD}
+    command: "mysqld --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci"
+
+networks:
+  default:
+    driver: bridge
+    attachable: true
+    ipam:
+      driver: default
+      config:
+        - subnet: 172.30.0.0/16
