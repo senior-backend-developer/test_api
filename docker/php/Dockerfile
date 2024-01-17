@@ -62,13 +62,7 @@ RUN apt-get update && \
 # ApiDoc generator
 RUN curl -sS https://getcomposer.org/installer | php -- \
         --filename=composer.phar \
-        --install-dir=/usr/local/bin &&  \
-    curl -sL https://deb.nodesource.com/setup_14.x | bash - && \
-    apt install nodejs && \
-    npm install apidoc -g
-
-RUN pecl install xdebug-3.1.0 && docker-php-ext-enable xdebug
-RUN pecl install grpc-1.55.0 && docker-php-ext-enable grpc
+        --install-dir=/usr/local/bin
 
 RUN apt-get install -y iputils-ping
 
@@ -76,13 +70,12 @@ WORKDIR /home/www
 
 # Add configuration files
 COPY docker/php/image-files/ /
-COPY docker/php-dev/image-files/ /
 
 # Add GITHUB_API_TOKEN support for composer
 RUN chmod 700 \
         /usr/local/bin/docker-entrypoint.sh \
-        /usr/local/bin/docker-run.sh \
-        /usr/local/bin/composer
+        /usr/local/bin/docker-run.sh
+#        /usr/local/bin/composer
 
 # Startup script for FPM
 ENTRYPOINT ["/usr/local/bin/docker-entrypoint.sh"]

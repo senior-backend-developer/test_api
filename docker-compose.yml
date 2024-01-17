@@ -2,7 +2,7 @@ version: "3.8"
 
 services:
   web_php:
-    container_name: test_web
+    container_name: test_api_web
     build:
       context: .
       dockerfile: docker/php/Dockerfile
@@ -15,10 +15,9 @@ services:
       - DB_MYSQL_USER=test_api
       - PHP_USER_ID=33
     volumes:
-      - .:/home/www
+      - ./app:/home/www
     depends_on:
-      db_mysql:
-        condition: service_healthy
+      - "db_mysql"
     links:
       - db_mysql
 
@@ -36,7 +35,7 @@ services:
     environment:
       - TZ=Europe/Moscow
     volumes:
-      - .:/home/www
+      - ./app:/home/www
     depends_on:
       - "web_php"
 
@@ -56,7 +55,7 @@ services:
       - "3306:3306"
     environment:
       - MYSQL_DATABASE=test_api
-      - MYSQL_USER=test_api
+      - MYSQL_USER=${DB_MYSQL_USER}
       - MYSQL_PASSWORD=${DB_MYSQL_PASSWORD}
       - MYSQL_ROOT_PASSWORD=${DB_MYSQL_PASSWORD}
     command: "mysqld --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci"
@@ -64,8 +63,8 @@ services:
 networks:
   default:
     driver: bridge
-    attachable: true
-    ipam:
-      driver: default
-      config:
-        - subnet: 172.30.0.0/16
+#    attachable: true
+#    ipam:
+#      driver: default
+#      config:
+#        - subnet: 172.30.0.0/16
