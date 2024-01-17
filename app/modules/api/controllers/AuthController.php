@@ -4,6 +4,7 @@ namespace app\modules\api\controllers;
 
 use app\components\Login;
 use app\models\User;
+use Codeception\Util\HttpCode;
 use Yii;
 
 class AuthController extends \yii\rest\Controller
@@ -57,14 +58,16 @@ class AuthController extends \yii\rest\Controller
             $login->password = $post['password'];
             $token = $login->getToken();
             if ($token) {
-                return ['status' => 'success', 'data' => [
+                return [
                     'token' => $token,
                     'duration' => Yii::$app->params['token_life_time'],
-                ]];
+                ];
             }
         } catch (\Exception $exception) {
-            return ['status' => 'error', 'data' => $exception->getMessage()];
+            Yii::$app->response->setStatusCode(HttpCode::UNAUTHORIZED);
+            return $exception->getMessage();
         }
-        return ['status' => 'error', 'data' => $login->getErrors()];
+        Yii::$app->response->setStatusCode(HttpCode::UNAUTHORIZED);
+        return $login->getErrors();
     }
 }
