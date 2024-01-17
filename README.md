@@ -1,10 +1,12 @@
 # .env
 скопировать .env.example в .env, поменять JTW_AUTH_SECRET, TOKEN_LIFE_TIME (при необходимости)
 
+# для запуска требуется Docker https://www.docker.com/get-started/
+
 # Поднять докер контейнеры
 Дважды запустить команду. В первый раз дождаться выполнения и посл запустить второй раз.
 ``` bash
-sudo docker-compose -f docker-compose.yml up -d --build
+docker-compose -f docker-compose.yml up -d --build
 ```
 
 уничтожить контейнеры
