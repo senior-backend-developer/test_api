@@ -44,6 +44,18 @@
             "enabled": false
         }
     },
+    "autoload": {
+        "classmap": [
+            "vendor/yiisoft/yii2/Yii.php"
+        ],
+        "psr-4": {
+            "app\\commands\\": "commands",
+            "app\\components\\": "components",
+            "app\\integrations\\": "integrations",
+            "app\\models\\": "models",
+            "app\\modules\\": "modules"
+        }
+    },
     "scripts": {
         "post-install-cmd": [
             "yii\\composer\\Installer::postInstall"
